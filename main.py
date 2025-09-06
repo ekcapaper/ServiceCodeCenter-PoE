@@ -85,7 +85,7 @@ async def get_raw_data():
 
 @app.get("/delivery")
 async def get_delivery():
-    return {"delivery": int(await redis_client.get("delivery"))}
+    return {"delivery": int(await redis_client.get("current_delivery"))}
 
 if __name__ == '__main__':
     # uvicorn
