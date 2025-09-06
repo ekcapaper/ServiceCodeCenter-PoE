@@ -9,11 +9,13 @@ import uvicorn
 import asyncio
 import logging
 
+from prefect import flow, task, get_run_logger
+
 log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
 
-@flow(name="data-loop")
+@flow(name="raw_data_main")
 async def raw_data_main():
     try:
         while True:
