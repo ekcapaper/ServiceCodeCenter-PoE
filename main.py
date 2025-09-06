@@ -1,18 +1,28 @@
 from contextlib import asynccontextmanager, suppress
 from typing import AsyncGenerator
 
+import redis
 from fastapi import FastAPI
 import uvicorn
 import asyncio
 import logging
+
+from fakeredis import TcpFakeServer
+import fakeredis
+
+server_address = ("127.0.0.1", 6379)
+server = TcpFakeServer(server_address, server_type="redis")
+
 
 log = logging.getLogger(__name__)
 
 async def data_main():
     try:
         while True:
-            print("temp")  # 실서비스에선 logging 사용 권장
-            await asyncio.sleep(1)  # 취소 지점(cancellation point)
+            r = redis.Redis(host=server_address[0], port=server_address[1])
+            await r.set("foo", "bar")
+            print(await r.get("foo"))
+            await asyncio.sleep(1)
     except asyncio.CancelledError:
         log.info("data_main cancelled")
         raise
