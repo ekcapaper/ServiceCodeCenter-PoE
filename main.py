@@ -38,9 +38,9 @@ result_bool = False
 async def task_data_analysis():
     global result_bool
     raw_data = int(await redis_client.get("raw_data"))
-    if raw_data > 70 and not result_bool:
+    if raw_data > 50 and not result_bool:
         result_bool = True
-    if raw_data < 30 and result_bool:
+    if raw_data < 50 and result_bool:
         result_bool = False
         current_delivery = int(await redis_client.get("current_delivery"))
         await redis_client.set("delivery", current_delivery + 1)
