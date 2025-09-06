@@ -14,6 +14,8 @@ from prefect import flow, task, get_run_logger
 log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
+
+# 데이터 수집 작업
 @task(name="task_raw_data_main")
 async def task_raw_data_main():
     raw = random.randint(0, 100)
@@ -21,6 +23,7 @@ async def task_raw_data_main():
 
 result_bool = False
 
+# 데이터 분석 작업
 @task(name="task_data_analysis")
 async def task_data_analysis():
     global result_bool
@@ -32,6 +35,7 @@ async def task_data_analysis():
         cur = int(await redis_client.get("current_delivery"))
         await redis_client.set("delivery", cur + 1)
 
+# 실행을 도와주는 함수
 @flow(name="runner")
 async def runner():
     while True:
@@ -39,8 +43,8 @@ async def runner():
         await task_data_analysis()
         await asyncio.sleep(1)
 
-# 학습
 
+# lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await redis_client.set("raw_data", 0)
