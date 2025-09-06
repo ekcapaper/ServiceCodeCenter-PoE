@@ -15,11 +15,11 @@ log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
 
+@flow(name="task_raw_data_main")
 async def task_raw_data_main():
     raw_data = random.randint(0, 100)
     await redis_client.set("raw_data", raw_data)
 
-#@flow(name="raw_data_main")
 async def raw_data_main():
     try:
         while True:
@@ -33,6 +33,8 @@ async def raw_data_main():
 
 # 전문가 시스템 가정
 result_bool = False
+
+@flow(name="task_data_analysis")
 async def task_data_analysis():
     global result_bool
     raw_data = int(await redis_client.get("raw_data"))
