@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
 
-@flow(name="raw_data_main")
+#@flow(name="raw_data_main")
 async def raw_data_main():
     try:
         while True:
@@ -34,13 +34,13 @@ async def data_analysis():
     global result_bool
     try:
         while True:
-            raw_data = await redis_client.get("raw_data")
+            raw_data = int(await redis_client.get("raw_data"))
             if raw_data > 70 and not result_bool:
                 result_bool = True
             if raw_data < 30 and result_bool:
                 result_bool = False
-
-
+                current_delivery = int(await redis_client.get("current_delivery"))
+                await redis_client.set("delivery", current_delivery + 1)
     except asyncio.CancelledError:
         log.info("data_main cancelled")
         raise
@@ -52,7 +52,7 @@ async def data_analysis():
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await redis_client.set("raw_data", 0)
-    await redis_client.set("delivery", 0)
+    await redis_client.set("current_delivery", 0)
     task = asyncio.create_task(raw_data_main())
     try:
         yield
