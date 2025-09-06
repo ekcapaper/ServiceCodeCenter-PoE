@@ -81,11 +81,11 @@ async def root():
 
 @app.get("/raw-data")
 async def get_raw_data():
-    return {"raw_data": int(redis_client.get("raw_data"))}
+    return {"raw_data": int(await redis_client.get("raw_data"))}
 
 @app.get("/delivery")
 async def get_delivery():
-    return {"delivery": int(redis_client.get("delivery"))}
+    return {"delivery": int(await redis_client.get("delivery"))}
 
 if __name__ == '__main__':
     # uvicorn
