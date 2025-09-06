@@ -53,13 +53,16 @@ async def data_analysis():
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await redis_client.set("raw_data", 0)
     await redis_client.set("current_delivery", 0)
-    task = asyncio.create_task(raw_data_main())
+    task1 = asyncio.create_task(raw_data_main())
+    task2 = asyncio.create_task(data_analysis())
     try:
         yield
     finally:
-        task.cancel()
+        task1.cancel()
+        task2.cancel()
         with suppress(asyncio.CancelledError):
-            await task
+            await task1
+            await task2
 
 app = FastAPI(lifespan=lifespan)
 
