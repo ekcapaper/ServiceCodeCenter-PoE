@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager, suppress
 from threading import Thread
 from typing import AsyncGenerator
 
-import fakeredis
+from fakeredis import FakeAsyncRedis
 from fastapi import FastAPI
 import uvicorn
 import asyncio
@@ -10,16 +10,15 @@ import logging
 
 log = logging.getLogger(__name__)
 
-redis_client = fakeredis.FakeRedis()
-redis_client.set("node_a", 0)
+redis_client = FakeAsyncRedis()
 
 async def data_main():
     try:
         while True:
-            data = redis_client.get("node_a")
+            data = await redis_client.get("node_a")
             data_int = int(data)
             print(data)
-            redis_client.set("node_a", data_int + 1)
+            await redis_client.set("node_a", data_int + 1)
             await asyncio.sleep(1)
     except asyncio.CancelledError:
         log.info("data_main cancelled")
@@ -29,6 +28,7 @@ async def data_main():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    await redis_client.set("node_a", 0)
     task = asyncio.create_task(data_main())
     try:
         yield
