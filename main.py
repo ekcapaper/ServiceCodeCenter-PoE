@@ -15,12 +15,15 @@ log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
 
+async def task_raw_data_main():
+    raw_data = random.randint(0, 100)
+    await redis_client.set("raw_data", raw_data)
+
 #@flow(name="raw_data_main")
 async def raw_data_main():
     try:
         while True:
-            raw_data = random.randint(0, 100)
-            await redis_client.set("raw_data", raw_data)
+            await task_raw_data_main()
             await asyncio.sleep(1)
     except asyncio.CancelledError:
         log.info("data_main cancelled")
@@ -30,17 +33,21 @@ async def raw_data_main():
 
 # 전문가 시스템 가정
 result_bool = False
-async def data_analysis():
+async def task_data_analysis():
     global result_bool
+    raw_data = int(await redis_client.get("raw_data"))
+    if raw_data > 70 and not result_bool:
+        result_bool = True
+    if raw_data < 30 and result_bool:
+        result_bool = False
+        current_delivery = int(await redis_client.get("current_delivery"))
+        await redis_client.set("delivery", current_delivery + 1)
+
+async def data_analysis():
     try:
         while True:
-            raw_data = int(await redis_client.get("raw_data"))
-            if raw_data > 70 and not result_bool:
-                result_bool = True
-            if raw_data < 30 and result_bool:
-                result_bool = False
-                current_delivery = int(await redis_client.get("current_delivery"))
-                await redis_client.set("delivery", current_delivery + 1)
+            await task_data_analysis()
+            await asyncio.sleep(1)
     except asyncio.CancelledError:
         log.info("data_main cancelled")
         raise
@@ -71,11 +78,11 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/raw-data")
-async def raw_data():
+async def get_raw_data():
     return {"raw_data": int(redis_client.get("raw_data"))}
 
 @app.get("/delivery")
-async def delivery():
+async def get_delivery():
     return {"delivery": int(redis_client.get("delivery"))}
 
 if __name__ == '__main__':
