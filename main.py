@@ -1,19 +1,18 @@
-import random
-from contextlib import asynccontextmanager, suppress
-from threading import Thread
-from typing import AsyncGenerator
-
-from fakeredis import FakeAsyncRedis
-from fastapi import FastAPI
-import uvicorn
 import asyncio
 import logging
+import random
+from contextlib import asynccontextmanager, suppress
+from typing import AsyncGenerator
 
-from prefect import flow, task, get_run_logger
+import uvicorn
+from fakeredis import FakeAsyncRedis
+from fastapi import FastAPI
+from prefect import flow, task
 
 log = logging.getLogger(__name__)
 
 redis_client = FakeAsyncRedis()
+
 
 # 데이터 수집 작업
 @task(name="task_raw_data_main")
@@ -21,7 +20,9 @@ async def task_raw_data_main():
     raw = random.randint(0, 100)
     await redis_client.set("raw_data", raw)
 
+
 result_bool = False
+
 
 # 데이터 분석 작업
 @task(name="task_data_analysis")
@@ -34,6 +35,7 @@ async def task_data_analysis():
         result_bool = False
         cur = int(await redis_client.get("current_delivery"))
         await redis_client.set("delivery", cur + 1)
+
 
 # 실행을 도와주는 함수
 @flow(name="runner")
@@ -57,19 +59,37 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         with suppress(asyncio.CancelledError):
             await task1
 
+
 app = FastAPI(lifespan=lifespan)
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+
 @app.get("/raw-data")
 async def get_raw_data():
     return {"raw_data": int(await redis_client.get("raw_data"))}
 
+
 @app.get("/delivery")
 async def get_delivery():
     return {"delivery": int(await redis_client.get("current_delivery"))}
+
+
+@app.get("/node-graph")
+def get_node_graph():
+    return {
+        "nodes": [
+            {"id": "frontend", "title": "Frontend", "subTitle": "Service"},
+            {"id": "backend", "title": "Backend", "subTitle": "Service"}
+        ],
+        "edges": [
+            {"id": "1", "source": "frontend", "target": "backend", "mainStat": "120 req/s"}
+        ]
+    }
+
 
 if __name__ == '__main__':
     # uvicorn
