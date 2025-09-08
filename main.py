@@ -78,18 +78,97 @@ async def get_delivery():
     return {"delivery": int(await redis_client.get("current_delivery"))}
 
 
-@app.get("/node-graph")
+@app.get("/api/graph/fields")
 def get_node_graph():
     return {
-        "nodes": [
-            {"id": "frontend", "title": "Frontend", "subTitle": "Service"},
-            {"id": "backend", "title": "Backend", "subTitle": "Service"}
+        "edges_fields": [
+            {
+                "field_name": "id",
+                "type": "string"
+            },
+            {
+                "field_name": "source",
+                "type": "string"
+            },
+            {
+                "field_name": "target",
+                "type": "string"
+            },
+            {
+                "field_name": "mainStat",
+                "type": "number"
+            }
         ],
-        "edges": [
-            {"id": "1", "source": "frontend", "target": "backend", "mainStat": "120 req/s"}
+        "nodes_fields": [
+            {
+                "field_name": "id",
+                "type": "string"
+            },
+            {
+                "field_name": "title",
+                "type": "string"
+            },
+            {
+                "field_name": "mainStat",
+                "type": "string"
+            },
+            {
+                "field_name": "secondaryStat",
+                "type": "number"
+            },
+            {
+                "color": "red",
+                "field_name": "arc__failed",
+                "type": "number"
+            },
+            {
+                "color": "green",
+                "field_name": "arc__passed",
+                "type": "number"
+            },
+            {
+                "displayName": "Role",
+                "field_name": "detail__role",
+                "type": "string"
+            }
         ]
     }
 
+
+@app.get("/api/graph/data")
+def get_graph_data():
+    return {
+        "edges": [
+            {
+                "id": "1",
+                "mainStat": "53/s",
+                "source": "1",
+                "target": "2"
+            }
+        ],
+        "nodes": [
+            {
+                "arc__failed": 0.7,
+                "arc__passed": 0.3,
+                "detail__zone": "load",
+                "id": "1",
+                "subTitle": "instance:#2",
+                "title": "Service1"
+            },
+            {
+                "arc__failed": 0.5,
+                "arc__passed": 0.5,
+                "detail__zone": "transform",
+                "id": "2",
+                "subTitle": "instance:#3",
+                "title": "Service2"
+            }
+        ]
+    }
+
+@app.get("/api/health")
+def get_health():
+    return {}
 
 if __name__ == '__main__':
     # uvicorn
