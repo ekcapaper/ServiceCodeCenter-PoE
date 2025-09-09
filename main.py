@@ -72,11 +72,14 @@ async def root():
 @app.get("/raw-data")
 async def get_raw_data():
     now_ms = int(time.time() * 1000)
-    return {
-        "metrics": [
-            {"time": now_ms, "cpu": 55}
+    return [
+      {
+        "target": "cpu_usage",
+        "datapoints": [
+          [55, 1757396398653]
         ]
-    }
+      }
+    ]
 
     return {"raw_data": int(await redis_client.get("raw_data"))}
 
