@@ -81,12 +81,17 @@ async def get_raw_data():
       }
     ]
 
-    return {"raw_data": int(await redis_client.get("raw_data"))}
-
-
 @app.get("/delivery")
 async def get_delivery():
-    return {"delivery": int(await redis_client.get("current_delivery"))}
+    now_ms = int(time.time() * 1000)
+    return [
+        {
+            "target": "delivery",
+            "datapoints": [
+                [int(await redis_client.get("current_delivery")), now_ms]
+            ]
+        }
+    ]
 
 
 # node-graph
