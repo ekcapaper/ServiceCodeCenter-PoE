@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import random
+import time
 from contextlib import asynccontextmanager, suppress
 from typing import AsyncGenerator
 
@@ -15,7 +16,7 @@ redis_client = FakeAsyncRedis()
 
 
 # 데이터 수집 작업
-@task(name="task_raw_data_main")
+#@task(name="task_raw_data_main")
 async def task_raw_data_main():
     raw = random.randint(0, 100)
     await redis_client.set("raw_data", raw)
@@ -25,7 +26,7 @@ result_bool = False
 
 
 # 데이터 분석 작업
-@task(name="task_data_analysis")
+#@task(name="task_data_analysis")
 async def task_data_analysis():
     global result_bool
     raw = int(await redis_client.get("raw_data"))
@@ -38,7 +39,7 @@ async def task_data_analysis():
 
 
 # 실행을 도와주는 함수
-@flow(name="runner")
+#@flow(name="runner")
 async def runner():
     while True:
         await task_raw_data_main()
@@ -70,6 +71,13 @@ async def root():
 # data
 @app.get("/raw-data")
 async def get_raw_data():
+    now_ms = int(time.time() * 1000)
+    return {
+        "metrics": [
+            {"time": now_ms, "cpu": 55}
+        ]
+    }
+
     return {"raw_data": int(await redis_client.get("raw_data"))}
 
 
