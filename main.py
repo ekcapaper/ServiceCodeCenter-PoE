@@ -93,10 +93,6 @@ def get_node_graph():
             {
                 "field_name": "target",
                 "type": "string"
-            },
-            {
-                "field_name": "mainStat",
-                "type": "number"
             }
         ],
         "nodes_fields": [
@@ -106,29 +102,6 @@ def get_node_graph():
             },
             {
                 "field_name": "title",
-                "type": "string"
-            },
-            {
-                "field_name": "mainStat",
-                "type": "string"
-            },
-            {
-                "field_name": "secondaryStat",
-                "type": "number"
-            },
-            {
-                "color": "red",
-                "field_name": "arc__failed",
-                "type": "number"
-            },
-            {
-                "color": "green",
-                "field_name": "arc__passed",
-                "type": "number"
-            },
-            {
-                "displayName": "Role",
-                "field_name": "detail__role",
                 "type": "string"
             }
         ]
@@ -141,26 +114,17 @@ def get_graph_data():
         "edges": [
             {
                 "id": "1",
-                "mainStat": "53/s",
                 "source": "1",
                 "target": "2"
             }
         ],
         "nodes": [
             {
-                "arc__failed": 0.7,
-                "arc__passed": 0.3,
-                "detail__zone": "load",
                 "id": "1",
-                "subTitle": "instance:#2",
                 "title": "Service1"
             },
             {
-                "arc__failed": 0.5,
-                "arc__passed": 0.5,
-                "detail__zone": "transform",
                 "id": "2",
-                "subTitle": "instance:#3",
                 "title": "Service2"
             }
         ]
