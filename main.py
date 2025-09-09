@@ -67,7 +67,7 @@ app = FastAPI(lifespan=lifespan)
 async def root():
     return {"message": "Hello World"}
 
-
+# data
 @app.get("/raw-data")
 async def get_raw_data():
     return {"raw_data": int(await redis_client.get("raw_data"))}
@@ -78,6 +78,7 @@ async def get_delivery():
     return {"delivery": int(await redis_client.get("current_delivery"))}
 
 
+# node-graph
 @app.get("/api/graph/fields")
 def get_node_graph():
     return {
