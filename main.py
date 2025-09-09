@@ -74,9 +74,9 @@ async def get_raw_data():
     now_ms = int(time.time() * 1000)
     return [
       {
-        "target": "cpu_usage",
+        "target": "raw-data",
         "datapoints": [
-          [55, 1757396398653]
+          [int(await redis_client.get("raw_data")), now_ms]
         ]
       }
     ]
