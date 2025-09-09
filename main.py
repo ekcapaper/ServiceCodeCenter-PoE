@@ -35,7 +35,7 @@ async def task_data_analysis():
     if raw < 50 and result_bool:
         result_bool = False
         cur = int(await redis_client.get("current_delivery"))
-        await redis_client.set("delivery", cur + 1)
+        await redis_client.set("current_delivery", cur + 1)
 
 
 # 실행을 도와주는 함수
